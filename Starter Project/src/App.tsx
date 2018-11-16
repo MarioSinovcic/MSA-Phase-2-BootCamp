@@ -26,6 +26,9 @@ class App extends React.Component<{}, IState> {
 
 		this.fetchMemes = this.fetchMemes.bind(this)
 		this.fetchMemes("")	
+
+		this.handleFileUpload = this.handleFileUpload.bind(this)
+		this.uploadMeme = this.uploadMeme.bind(this)
 	}
 
 	public render() {
@@ -62,18 +65,14 @@ class App extends React.Component<{}, IState> {
 					</div>
 					<div className="form-group">
 						<label>Image</label>
-						<input type="file" onChange={this.methodNotImplemented} className="form-control-file" id="meme-image-input" />
+						<input type="file" onChange={this.handleFileUpload} className="form-control-file" id="meme-image-input" />
 					</div>
 
-					<button type="button" className="btn" onClick={this.methodNotImplemented}>Upload</button>
+					<button type="button" className="btn" onClick={this.uploadMeme}>Upload</button>
 				</form>
 			</Modal>
 		</div>
 		);
-	}
-
-	private methodNotImplemented() {
-		alert("Method not implemented")
 	}
 
 	// Modal open
@@ -93,7 +92,7 @@ class App extends React.Component<{}, IState> {
 		})
 	}
 
-	// Added via MSA Repo
+	// Added via MSA repo
 	private fetchMemes(tag: any) {
 		let url = "http://phase2apitest.azurewebsites.net/api/meme"
 		if (tag !== "") {
@@ -113,6 +112,47 @@ class App extends React.Component<{}, IState> {
 				memes: json
 			})
 		});
+	}
+
+	// Added via MSA repo
+	private handleFileUpload(fileList: any) {
+		this.setState({
+			uploadFileList: fileList.target.files
+		})
+	}
+
+	// Added via MSA repo
+	private uploadMeme() {
+		const titleInput = document.getElementById("meme-title-input") as HTMLInputElement
+		const tagInput = document.getElementById("meme-tag-input") as HTMLInputElement
+		const imageFile = this.state.uploadFileList[0]
+	
+		if (titleInput === null || tagInput === null || imageFile === null) {
+			return;
+		}
+	
+		const title = titleInput.value
+		const tag = tagInput.value
+		const url = "http://phase2apitest.azurewebsites.net/api/meme/upload"
+	
+		const formData = new FormData()
+		formData.append("Title", title)
+		formData.append("Tags", tag)
+		formData.append("image", imageFile)
+	
+		fetch(url, {
+			body: formData,
+			headers: {'cache-control': 'no-cache'},
+			method: 'POST'
+		})
+		.then((response : any) => {
+			if (!response.ok) {
+				// Error State
+				alert(response.statusText)
+			} else {
+				location.reload()
+			}
+		})
 	}
 }
 
